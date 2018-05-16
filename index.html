@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.1/css/uikit.min.css" />
+
+</head>
+<body>
+
+
+
+
+<div id="app">
+    <h2>{{title}}</h2>
+    <input v-on:keydown.enter="addPizza" type="text" id="pizza" v-model="name">
+    <ul>
+        <li v-for="(item, i) in items">
+            <button v-on:click="deletePizza(i)">X</button>
+            <span>{{item.text}}</span>
+        </li>
+    </ul>
+</div>
+
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/5.0.2/firebase.js"></script>
+<script>
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyDzgZapMUPFkg6dlte4W3au-E0zHR7Vp50",
+        authDomain: "test-4341e.firebaseapp.com",
+        databaseURL: "https://test-4341e.firebaseio.com",
+        projectId: "test-4341e",
+        storageBucket: "test-4341e.appspot.com",
+        messagingSenderId: "301332539094"
+    };
+    firebase.initializeApp(config);
+</script>
+    <script src="https://unpkg.com/vue"></script>
+    <script>
+        const app = new Vue({
+            el: '#app',
+            data:{
+                name:'',
+                title:"Pizzas",
+                items:[]
+            },
+            created(){
+              firebase.database().ref("pizzas")
+                  .once("value")
+                  .then(snap=>{
+                      this.items = snap.val();
+                  })
+            },
+            methods:{
+                addPizza(){
+                    var ob = {text:this.name}
+                    this.items.push(ob);
+                    this.name = "";
+                    this.firebaseUpdate()
+                },
+                deletePizza(i){
+                    this.items.splice(i,1);
+                    this.firebaseUpdate();
+                },
+                firebaseUpdate(){
+                    var updates = {pizzas:this.items};
+                    firebase.database().ref().update(updates);
+                }
+            }
+        })
+    </script>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.1/js/uikit.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.1/js/uikit-icons.min.js"></script>
+</body>
+</html>
